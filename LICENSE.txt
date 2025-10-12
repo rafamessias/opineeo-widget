@@ -1,0 +1,49 @@
+Opineeo Proprietary License Agreement
+Version 1.0 – October 2025
+
+Copyright (c) 2025 OBRA GURU SERVIÇOS DIGITAIS LTDA
+CNPJ 39.962.566/0001-30
+All rights reserved.
+
+1. DEFINITIONS
+"Software" refers to the Opineeo widget, SDK, and any accompanying files, scripts, or documentation made
+available through npm, GitHub, or https://opineeo.com, whether in source or compiled form.
+
+"Company" refers to OBRA GURU SERVIÇOS DIGITAIS LTDA, the owner of Opineeo.
+
+"User" refers to any individual or entity installing, copying, embedding, or otherwise using the Software.
+
+2. LICENSE GRANT
+Company grants the User a limited, non-exclusive, non-transferable, revocable license to install and use the
+Software solely to connect, integrate, and communicate with the official Opineeo services hosted by Company.
+
+3. RESTRICTIONS
+User may NOT:
+- Modify, reverse engineer, or create derivative works of the Software.
+- Redistribute, sublicense, sell, lease, or host the Software or any modified version of it.
+- Use the Software to connect to or operate any non-Opineeo service.
+- Remove or obscure any proprietary notices, trademarks, or attributions.
+
+4. OWNERSHIP
+The Software and all intellectual property rights remain the exclusive property of the Company. This license
+does not transfer any ownership rights to the User.
+
+5. TERMINATION
+This license terminates automatically if the User breaches any of its terms. Upon termination, the User must
+immediately stop using and destroy all copies of the Software.
+
+6. WARRANTY DISCLAIMER
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+7. LIMITATION OF LIABILITY
+IN NO EVENT SHALL COMPANY BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES
+ARISING OUT OF OR IN CONNECTION WITH THE USE OF THE SOFTWARE.
+
+8. CONTACT
+Questions or requests for extended licensing may be directed to:
+support@opineeo.com
+https://opineeo.com
+
+By downloading or using the Software, you acknowledge that you have read, understood, and agree to be
+bound by this License Agreement.
