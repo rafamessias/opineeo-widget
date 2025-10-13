@@ -42,7 +42,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OF THE SOFTWARE.
 
 8. CONTACT
 Questions or requests for extended licensing may be directed to:
-support@opineeo.com
+contact@opineeo.com
 https://opineeo.com
 
 By downloading or using the Software, you acknowledge that you have read, understood, and agree to be
