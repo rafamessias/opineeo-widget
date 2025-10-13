@@ -68,7 +68,6 @@ export default App;
 | `customCSS` | `string` | `undefined` | Custom CSS to style the widget (e.g., CSS variables) |
 | `hidden` | `boolean` | `false` | Hide the widget initially |
 | `className` | `string` | `''` | Custom CSS class for the widget container |
-| `style` | `React.CSSProperties` | `undefined` | Inline styles for positioning (e.g., fixed positioning) |
 | `userId` | `string` | `undefined` | User ID to associate with the response |
 | `extraInfo` | `string` | `undefined` | Extra information to include with the response |
 | `autoClose` | `number` | `0` | Auto-close delay in milliseconds after submission (0 = no auto-close) |
@@ -88,7 +87,7 @@ function App() {
     <div>
       <h1>My App</h1>
       <div className="survey-container">
-        <OpineeoWidget token="your-api-token" />
+        <OpineeoWidget token="your-api-token" surveyId="survey-id" />
       </div>
     </div>
   );
@@ -100,6 +99,7 @@ function App() {
 ```tsx
 <OpineeoWidget
   token="your-api-token"
+  surveyId="survey-id"
   customCSS={`
     .sv {
       --primary: #8B5CF6;
@@ -131,6 +131,7 @@ function App() {
   return (
     <OpineeoWidget
       token="your-api-token"
+      surveyId="survey-id"
       onOpen={handleOpen}
       onClose={handleClose}
       onSubmit={handleSubmit}
@@ -154,6 +155,7 @@ function App() {
   return (
     <OpineeoWidget
       token="your-api-token"
+      surveyId="survey-id"
       hidden={!showWidget}
     />
   );
@@ -216,7 +218,7 @@ Place the widget anywhere in your component tree. It will render inline within t
 ```tsx
 <div className="my-container">
   <h2>Please share your feedback</h2>
-  <OpineeoWidget token="your-token" />
+  <OpineeoWidget token="your-token" surveyId="survey-id" />
 </div>
 ```
 
@@ -225,7 +227,7 @@ Wrap it in your own modal, dialog, or custom container:
 
 ```tsx
 <Modal isOpen={showSurvey}>
-  <OpineeoWidget token="your-token" />
+  <OpineeoWidget token="your-token" surveyId="survey-id" />
 </Modal>
 ```
 
