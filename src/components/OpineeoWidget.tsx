@@ -1,88 +1,119 @@
 import React, { useEffect, useRef } from 'react';
 import { OpineeoWidgetProps } from '../types';
 
-// Import the minified web component
-import './opineeo-0.0.1.min.js';
+// Load the widget script once globally
+let scriptLoaded = false;
+let loadPromise: Promise<void> | null = null;
+
+const loadWidgetScript = (): Promise<void> => {
+    if (scriptLoaded) {
+        return Promise.resolve();
+    }
+
+    if (loadPromise) {
+        return loadPromise;
+    }
+
+    loadPromise = new Promise((resolve) => {
+        if (typeof window === 'undefined') {
+            resolve();
+            return;
+        }
+
+        // Check if already loaded
+        if ((window as any).initSurveyWidget) {
+            scriptLoaded = true;
+            resolve();
+            return;
+        }
+
+        // Load the external script file
+        const script = document.createElement('script');
+        script.src = '/opineeo-0.0.1.min.js';
+
+        script.onload = () => {
+            scriptLoaded = true;
+            resolve();
+        };
+
+        document.head.appendChild(script);
+    });
+
+    return loadPromise;
+};
 
 const OpineeoWidget: React.FC<OpineeoWidgetProps> = ({
-    apiKey,
+    token,
     surveyId,
-    position = 'bottom-right',
-    primaryColor = '#3B82F6',
-    triggerText,
+    customCSS,
     hidden = false,
     className = '',
+    userId,
+    extraInfo,
+    autoClose,
     onOpen,
     onClose,
     onSubmit,
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
-    const widgetIdRef = useRef<string>(`opineeo-widget-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`);
+    const widgetRef = useRef<any>(null);
 
     useEffect(() => {
-        if (!apiKey) {
-            console.warn('Opineeo Widget: apiKey is required for full functionality');
-        }
-    }, [apiKey]);
+        if (hidden) return;
 
-    useEffect(() => {
-        // Create custom CSS for positioning and styling
-        const customCSS = `
-            .sv {
-                --primary: ${primaryColor};
-                --primary-foreground: #ffffff;
-            }
-        `;
+        let isMounted = true;
 
-        // Initialize the widget using the web component API
-        if (containerRef.current && typeof window !== 'undefined') {
-            const widgetContainer = containerRef.current.querySelector(`#${widgetIdRef.current}`);
+        const initializeWidget = async () => {
+            await loadWidgetScript();
 
-            if (widgetContainer && (window as any).initSurveyWidget) {
-                const widget = (window as any).initSurveyWidget({
-                    token: apiKey,
-                    surveyId: surveyId,
-                    customCSS: customCSS,
-                    onComplete: (data: unknown) => {
+            if (!isMounted || !containerRef.current || !token) return;
+
+            // Create container div
+            const containerId = `opineeo-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            const containerDiv = document.createElement('div');
+            containerDiv.id = containerId;
+            containerRef.current.appendChild(containerDiv);
+
+            // Initialize widget
+            const widget = (window as any).initSurveyWidget({
+                token: token,
+                surveyId: surveyId,
+                userId: userId,
+                extraInfo: extraInfo,
+                autoClose: autoClose,
+                customCSS: customCSS,
+                onComplete: (data: any) => {
+                    if (isMounted) {
                         onSubmit?.(data);
-                    },
-                    onClose: () => {
+                    }
+                },
+                onClose: () => {
+                    if (isMounted) {
                         onClose?.();
-                    },
-                });
+                    }
+                },
+            });
 
-                widget.mount(widgetIdRef.current);
+            widget.mount(containerId);
+            widgetRef.current = widget;
 
-                // Call onOpen if provided
-                if (onOpen) {
-                    setTimeout(() => onOpen(), 100);
-                }
-
-                return () => {
-                    widget?.destroy?.();
-                };
+            // Call onOpen only once
+            if (isMounted) {
+                onOpen?.(containerId);
             }
-        }
-    }, [apiKey, surveyId, primaryColor, onSubmit, onClose, onOpen]);
-
-    const getPositionStyles = (): React.CSSProperties => {
-        const baseStyles: React.CSSProperties = {
-            position: 'fixed',
-            zIndex: 9999,
         };
 
-        switch (position) {
-            case 'bottom-left':
-                return { ...baseStyles, bottom: '1.5rem', left: '1.5rem' };
-            case 'top-right':
-                return { ...baseStyles, top: '1.5rem', right: '1.5rem' };
-            case 'top-left':
-                return { ...baseStyles, top: '1.5rem', left: '1.5rem' };
-            case 'bottom-right':
-            default:
-                return { ...baseStyles, bottom: '1.5rem', right: '1.5rem' };
-        }
-    };
+        initializeWidget();
+
+        return () => {
+            isMounted = false;
+            if (widgetRef.current) {
+                widgetRef.current?.destroy?.();
+                widgetRef.current = null;
+            }
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [token, surveyId, customCSS, hidden, userId, extraInfo, autoClose]);
 
     if (hidden) return null;
 
@@ -90,10 +121,7 @@ const OpineeoWidget: React.FC<OpineeoWidgetProps> = ({
         <div
             ref={containerRef}
             className={`opineeo-widget-wrapper ${className}`}
-            style={getPositionStyles()}
-        >
-            <div id={widgetIdRef.current} />
-        </div>
+        />
     );
 };
 

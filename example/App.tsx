@@ -2,55 +2,57 @@ import React, { useState } from 'react';
 import { OpineeoWidget } from '../src';
 
 const App: React.FC = () => {
-    const [position, setPosition] = useState<'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'>('bottom-right');
     const [primaryColor, setPrimaryColor] = useState('#3B82F6');
-    const [triggerText, setTriggerText] = useState('Feedback');
-    const [hidden, setHidden] = useState(false);
+    const [showWidget, setShowWidget] = useState(false);
     const [apiKey, setApiKey] = useState('demo-api-key');
     const [surveyId, setSurveyId] = useState('demo-survey-id');
     const [logs, setLogs] = useState<string[]>([]);
+    const [customCSS, setCustomCSS] = useState(`.sv { --primary: ${primaryColor}; --primary-foreground: #ffffff; }`);
 
     const addLog = (message: string) => {
         const timestamp = new Date().toLocaleTimeString();
-        setLogs(prev => [...prev, `[${timestamp}] ${message}`]);
+        setLogs(prev => {
+            const newLogs = [...prev, `[${timestamp}] ${message}`];
+            // Keep only last 50 logs to prevent memory issues
+            return newLogs.slice(-50);
+        });
     };
 
-    const handleOpen = () => {
-        addLog('Widget opened');
+    const handleOpen = (id: string) => {
+        addLog(`Widget opened: ${id}`);
     };
 
     const handleClose = () => {
         addLog('Widget closed');
+        setShowWidget(false);
     };
 
     const handleSubmit = (data: unknown) => {
         addLog(`Feedback submitted: ${JSON.stringify(data)}`);
     };
 
+    const handleResetWidget = () => {
+        addLog('Widget reset - remounting...');
+        setShowWidget(false);
+        setTimeout(() => setShowWidget(true), 100);
+    };
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
             {/* Header */}
-            <header className="bg-white shadow-sm">
+            <header className="bg-card shadow-sm border-b border-border">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                            <svg
-                                className="w-6 h-6 text-white"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
-                                />
-                            </svg>
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+                            <img
+                                src="/opineeo-logo.png"
+                                alt="Opineeo Logo"
+                                className="w-8 h-8"
+                            />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Opineeo Widget</h1>
-                            <p className="text-sm text-gray-600">Interactive Demo & Playground</p>
+                            <h1 className="text-2xl font-bold text-foreground">Opineeo Widget</h1>
+                            <p className="text-sm text-muted-foreground">Interactive Demo & Playground</p>
                         </div>
                     </div>
                 </div>
@@ -60,45 +62,35 @@ const App: React.FC = () => {
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Configuration Panel */}
-                    <div className="bg-white rounded-xl shadow-md p-6">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                    <div className="bg-card rounded-xl shadow-md border border-border p-6">
+                        <h2 className="text-xl font-semibold text-foreground mb-4">
                             Widget Configuration
                         </h2>
                         <div className="space-y-4">
-                            {/* Position */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Position
-                                </label>
-                                <select
-                                    value={position}
-                                    onChange={(e) => setPosition(e.target.value as typeof position)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                >
-                                    <option value="bottom-right">Bottom Right</option>
-                                    <option value="bottom-left">Bottom Left</option>
-                                    <option value="top-right">Top Right</option>
-                                    <option value="top-left">Top Left</option>
-                                </select>
-                            </div>
 
                             {/* Primary Color */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-foreground mb-2">
                                     Primary Color
                                 </label>
                                 <div className="flex gap-2">
                                     <input
                                         type="color"
                                         value={primaryColor}
-                                        onChange={(e) => setPrimaryColor(e.target.value)}
-                                        className="w-16 h-10 rounded border border-gray-300 cursor-pointer"
+                                        onChange={(e) => {
+                                            setPrimaryColor(e.target.value);
+                                            setCustomCSS(`.sv { --primary: ${e.target.value}; --primary-foreground: #ffffff; }`);
+                                        }}
+                                        className="w-16 h-10 rounded border border-input cursor-pointer bg-background"
                                     />
                                     <input
                                         type="text"
                                         value={primaryColor}
-                                        onChange={(e) => setPrimaryColor(e.target.value)}
-                                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono"
+                                        onChange={(e) => {
+                                            setPrimaryColor(e.target.value);
+                                            setCustomCSS(`.sv { --primary: ${e.target.value}; --primary-foreground: #ffffff; }`);
+                                        }}
+                                        className="flex-1 px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent font-mono bg-background text-foreground"
                                         placeholder="#3B82F6"
                                     />
                                 </div>
@@ -106,67 +98,66 @@ const App: React.FC = () => {
 
                             {/* API Key */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-foreground mb-2">
                                     API Key
                                 </label>
                                 <input
                                     type="text"
                                     value={apiKey}
                                     onChange={(e) => setApiKey(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                                    className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent font-mono text-sm bg-background text-foreground"
                                     placeholder="your-api-key"
                                 />
                             </div>
 
                             {/* Survey ID */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-foreground mb-2">
                                     Survey ID
                                 </label>
                                 <input
                                     type="text"
                                     value={surveyId}
                                     onChange={(e) => setSurveyId(e.target.value)}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                                    className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent font-mono text-sm bg-background text-foreground"
                                     placeholder="survey-id"
                                 />
                             </div>
 
-                            {/* Hidden Toggle */}
-                            <div className="flex items-center justify-between">
-                                <label className="text-sm font-medium text-gray-700">
-                                    Hide Widget
-                                </label>
+                            {/* Widget Controls */}
+                            <div className="space-y-3 pt-4 border-t border-border">
                                 <button
-                                    onClick={() => setHidden(!hidden)}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${hidden ? 'bg-blue-600' : 'bg-gray-200'
+                                    onClick={() => setShowWidget(!showWidget)}
+                                    className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${showWidget
+                                        ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
+                                        : 'bg-primary hover:bg-primary/90 text-primary-foreground'
                                         }`}
-                                    role="switch"
-                                    aria-checked={hidden}
                                 >
-                                    <span
-                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${hidden ? 'translate-x-6' : 'translate-x-1'
-                                            }`}
-                                    />
+                                    {showWidget ? 'Hide Widget' : 'Show Widget'}
                                 </button>
+                                {showWidget && (
+                                    <button
+                                        onClick={handleResetWidget}
+                                        className="w-full px-4 py-2 border border-input rounded-lg font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors bg-background"
+                                    >
+                                        Reset Widget (Remount)
+                                    </button>
+                                )}
                             </div>
                         </div>
 
                         {/* Code Example */}
-                        <div className="mt-6 pt-6 border-t border-gray-200">
-                            <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                        <div className="mt-6 pt-6 border-t border-border">
+                            <h3 className="text-sm font-semibold text-foreground mb-3">
                                 Usage Example
                             </h3>
-                            <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-xs">
-                                {`import { OpineeoWidget } from 'opineeo-widget';
-import 'opineeo-widget/dist/style.css';
+                            <pre className="bg-muted text-muted-foreground p-4 rounded-lg overflow-x-auto text-xs">
+                                {`import { OpineeoWidget } from 'opineeo-react';
 
 <OpineeoWidget
-  apiKey="${apiKey}"
+  token="${apiKey}"
   surveyId="${surveyId}"
-  position="${position}"
-  primaryColor="${primaryColor}"
-  hidden={${hidden}}
+  customCSS="${customCSS}"
   onOpen={() => console.log('opened')}
   onClose={() => console.log('closed')}
   onSubmit={(data) => console.log(data)}
@@ -176,26 +167,41 @@ import 'opineeo-widget/dist/style.css';
                     </div>
 
                     {/* Event Logs */}
-                    <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="bg-card rounded-xl shadow-md border border-border p-6">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-xl font-semibold text-gray-900">
+                            <h2 className="text-xl font-semibold text-foreground">
                                 Event Logs
                             </h2>
                             <button
                                 onClick={() => setLogs([])}
-                                className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                                className="px-3 py-1 text-sm text-muted-foreground hover:text-foreground border border-input rounded-lg hover:bg-accent transition-colors bg-background"
                             >
                                 Clear
                             </button>
                         </div>
-                        <div className="bg-gray-900 rounded-lg p-4 h-96 overflow-y-auto font-mono text-xs text-green-400">
+                        {/* Widget - Fixed placement */}
+                        {showWidget && (
+                            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+                                <div className="bg-card rounded-xl shadow-lg border border-border p-2">
+                                    <OpineeoWidget
+                                        token={apiKey}
+                                        surveyId={surveyId}
+                                        customCSS={customCSS}
+                                        onOpen={handleOpen}
+                                        onClose={handleClose}
+                                        onSubmit={handleSubmit}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                        <div className="bg-muted rounded-lg p-4 h-96 overflow-y-auto font-mono text-xs text-chart-1">
                             {logs.length === 0 ? (
-                                <div className="text-gray-500 text-center py-8">
+                                <div className="text-muted-foreground text-center py-8">
                                     No events yet. Try interacting with the widget!
                                 </div>
                             ) : (
                                 logs.map((log, index) => (
-                                    <div key={index} className="mb-1">
+                                    <div key={index} className="mb-1 break-words">
                                         {log}
                                     </div>
                                 ))
@@ -204,15 +210,15 @@ import 'opineeo-widget/dist/style.css';
                     </div>
 
                     {/* Features */}
-                    <div className="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                    <div className="lg:col-span-2 bg-card rounded-xl shadow-md border border-border p-6">
+                        <h2 className="text-xl font-semibold text-foreground mb-4">
                             Features
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             <div className="flex items-start gap-3">
-                                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center flex-shrink-0">
                                     <svg
-                                        className="w-5 h-5 text-blue-600"
+                                        className="w-5 h-5 text-accent-foreground"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -226,17 +232,17 @@ import 'opineeo-widget/dist/style.css';
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-gray-900">Easy Integration</h3>
-                                    <p className="text-sm text-gray-600">
+                                    <h3 className="font-semibold text-foreground">Easy Integration</h3>
+                                    <p className="text-sm text-muted-foreground">
                                         Add to any React app in minutes
                                     </p>
                                 </div>
                             </div>
 
                             <div className="flex items-start gap-3">
-                                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center flex-shrink-0">
                                     <svg
-                                        className="w-5 h-5 text-purple-600"
+                                        className="w-5 h-5 text-accent-foreground"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -250,17 +256,17 @@ import 'opineeo-widget/dist/style.css';
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-gray-900">Customizable</h3>
-                                    <p className="text-sm text-gray-600">
+                                    <h3 className="font-semibold text-foreground">Customizable</h3>
+                                    <p className="text-sm text-muted-foreground">
                                         Match your brand colors and style
                                     </p>
                                 </div>
                             </div>
 
                             <div className="flex items-start gap-3">
-                                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center flex-shrink-0">
                                     <svg
-                                        className="w-5 h-5 text-green-600"
+                                        className="w-5 h-5 text-accent-foreground"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -274,17 +280,17 @@ import 'opineeo-widget/dist/style.css';
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-gray-900">Mobile First</h3>
-                                    <p className="text-sm text-gray-600">
+                                    <h3 className="font-semibold text-foreground">Mobile First</h3>
+                                    <p className="text-sm text-muted-foreground">
                                         Responsive on all devices
                                     </p>
                                 </div>
                             </div>
 
                             <div className="flex items-start gap-3">
-                                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center flex-shrink-0">
                                     <svg
-                                        className="w-5 h-5 text-orange-600"
+                                        className="w-5 h-5 text-accent-foreground"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -298,17 +304,17 @@ import 'opineeo-widget/dist/style.css';
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-gray-900">TypeScript</h3>
-                                    <p className="text-sm text-gray-600">
+                                    <h3 className="font-semibold text-foreground">TypeScript</h3>
+                                    <p className="text-sm text-muted-foreground">
                                         Full type safety included
                                     </p>
                                 </div>
                             </div>
 
                             <div className="flex items-start gap-3">
-                                <div className="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center flex-shrink-0">
                                     <svg
-                                        className="w-5 h-5 text-pink-600"
+                                        className="w-5 h-5 text-accent-foreground"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -322,17 +328,17 @@ import 'opineeo-widget/dist/style.css';
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-gray-900">Accessible</h3>
-                                    <p className="text-sm text-gray-600">
+                                    <h3 className="font-semibold text-foreground">Accessible</h3>
+                                    <p className="text-sm text-muted-foreground">
                                         ARIA compliant & keyboard nav
                                     </p>
                                 </div>
                             </div>
 
                             <div className="flex items-start gap-3">
-                                <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center flex-shrink-0">
                                     <svg
-                                        className="w-5 h-5 text-indigo-600"
+                                        className="w-5 h-5 text-accent-foreground"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -346,8 +352,8 @@ import 'opineeo-widget/dist/style.css';
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-gray-900">Lightweight</h3>
-                                    <p className="text-sm text-gray-600">
+                                    <h3 className="font-semibold text-foreground">Lightweight</h3>
+                                    <p className="text-sm text-muted-foreground">
                                         Minimal bundle size
                                     </p>
                                 </div>
@@ -357,18 +363,6 @@ import 'opineeo-widget/dist/style.css';
                 </div>
             </main>
 
-            {/* Widget */}
-            <OpineeoWidget
-                apiKey={apiKey}
-                surveyId={surveyId}
-                position={position}
-                primaryColor={primaryColor}
-                triggerText={triggerText}
-                hidden={hidden}
-                onOpen={handleOpen}
-                onClose={handleClose}
-                onSubmit={handleSubmit}
-            />
         </div>
     );
 };

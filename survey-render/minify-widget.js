@@ -6,7 +6,7 @@ import { dirname, join, basename } from 'node:path';
 import { minify } from 'terser';
 
 const INPUT_FILE = join(dirname(fileURLToPath(import.meta.url)), '../survey-render/opineeo-0.0.1.js');
-const OUTPUT_FILE = join(dirname(fileURLToPath(import.meta.url)), '../src/components/opineeo-0.0.1.min.js');
+const OUTPUT_FILE = join(dirname(fileURLToPath(import.meta.url)), '../public/opineeo-0.0.1.min.js');
 
 async function minifyWidget() {
     try {

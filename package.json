@@ -11,8 +11,7 @@
       "import": "./dist/opineeo-widget.js",
       "require": "./dist/opineeo-widget.umd.cjs",
       "types": "./dist/index.d.ts"
-    },
-    "./dist/style.css": "./dist/style.css"
+    }
   },
   "files": [
     "dist"
@@ -48,6 +47,7 @@
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
+    "@types/node": "^24.7.2",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.13.1",
@@ -61,9 +61,9 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwindcss": "^3.4.4",
+    "terser": "^5.44.0",
     "typescript": "^5.2.2",
     "vite": "^5.3.1",
-    "vite-plugin-dts": "^3.9.1",
-    "terser": "^5.44.0"
+    "vite-plugin-dts": "^3.9.1"
   }
 }
