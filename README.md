@@ -10,7 +10,7 @@ The simplest survey widget for Devs and Founders. Collect user feedback seamless
 ✨ **Easy Integration** - Add to any React app in minutes  
 🎨 **Fully Customizable** - Match your brand colors and style with CSS variables  
 📱 **Mobile First** - Responsive design for all devices  
-📍 **Flexible Positioning** - Inline, fixed, or custom container placement  
+📍 **Flexible Positioning** - Inline embedded or fixed corner positions (top-right, bottom-left, etc.)  
 🔒 **TypeScript** - Full type safety included  
 ♿ **Accessible** - ARIA compliant with keyboard navigation  
 🪶 **Lightweight** - Minimal bundle size impact  
@@ -48,7 +48,16 @@ function App() {
       <OpineeoWidget
         token="your-api-key-here"
         surveyId="your-survey-id"
-        customCSS=".sv { --primary: #3B82F6; --primary-foreground: #ffffff; }"
+        position="inline"
+        customCSS=".sv { --primary: #3B82F6; }"
+      />
+      
+      {/* Or use fixed corner position */}
+      <OpineeoWidget
+        token="your-api-key-here"
+        surveyId="your-survey-id"
+        position="bottom-right"
+        feedbackLabel="Give Feedback"
       />
     </div>
   );
@@ -71,6 +80,8 @@ export default App;
 | `userId` | `string` | `undefined` | User ID to associate with the response |
 | `extraInfo` | `string` | `undefined` | Extra information to include with the response |
 | `autoClose` | `number` | `0` | Auto-close delay in milliseconds after submission (0 = no auto-close) |
+| `position` | `'inline' \| 'top-right' \| 'top-left' \| 'bottom-right' \| 'bottom-left'` | `'inline'` | Position of the widget on screen |
+| `feedbackLabel` | `string` | `'Give Feedback'` | Label for the feedback button (only used when position is not 'inline') |
 | `onOpen` | `(containerId: string) => void` | `undefined` | Callback when widget is opened (receives container ID) |
 | `onClose` | `() => void` | `undefined` | Callback when widget is closed |
 | `onSubmit` | `(data: any) => void` | `undefined` | Callback when survey is submitted |
@@ -194,12 +205,16 @@ function App() {
 The package includes full TypeScript definitions. Import types as needed:
 
 ```tsx
-import { OpineeoWidget, OpineeoWidgetProps } from 'opineeo-widget';
+import { OpineeoWidget, OpineeoWidgetProps, WidgetPosition } from 'opineeo-widget';
 
 const MyComponent: React.FC = () => {
+  const position: WidgetPosition = 'bottom-right';
+  
   const widgetProps: OpineeoWidgetProps = {
     token: 'your-api-token',
     surveyId: 'survey-123',
+    position: position,
+    feedbackLabel: 'Feedback',
     customCSS: '.sv { --primary: #3B82F6; }',
     onSubmit: (data) => console.log(data),
   };
@@ -210,24 +225,76 @@ const MyComponent: React.FC = () => {
 
 ## Widget Positioning
 
-The widget is **flexible in positioning** - you control where it appears by how you use the component:
+The widget supports multiple positioning modes to fit your needs:
 
-### Inline (In Page Flow)
-Place the widget anywhere in your component tree. It will render inline within the page flow:
+### Inline (Default)
+The widget is embedded directly in your page where you place it:
 
 ```tsx
 <div className="my-container">
   <h2>Please share your feedback</h2>
-  <OpineeoWidget token="your-token" surveyId="survey-id" />
+  <OpineeoWidget 
+    token="your-token" 
+    surveyId="survey-id"
+    position="inline"
+  />
 </div>
 ```
 
-### Modal/Custom Container
-Wrap it in your own modal, dialog, or custom container:
+### Fixed Corner Positions
+Display the widget as a fixed button in any corner of the screen. Clicking the button opens the survey in a modal overlay:
+
+```tsx
+// Bottom-right corner (popular for feedback buttons)
+<OpineeoWidget 
+  token="your-token" 
+  surveyId="survey-id"
+  position="bottom-right"
+  feedbackLabel="Share Feedback"
+/>
+
+// Bottom-left corner
+<OpineeoWidget 
+  token="your-token" 
+  surveyId="survey-id"
+  position="bottom-left"
+  feedbackLabel="Give Feedback"
+/>
+
+// Top-right corner
+<OpineeoWidget 
+  token="your-token" 
+  surveyId="survey-id"
+  position="top-right"
+  feedbackLabel="Help Us Improve"
+/>
+
+// Top-left corner
+<OpineeoWidget 
+  token="your-token" 
+  surveyId="survey-id"
+  position="top-left"
+  feedbackLabel="Feedback"
+/>
+```
+
+**Available positions:**
+- `inline` - Embedded in page (default)
+- `bottom-right` - Fixed button in bottom-right corner
+- `bottom-left` - Fixed button in bottom-left corner
+- `top-right` - Fixed button in top-right corner
+- `top-left` - Fixed button in top-left corner
+
+### Modal/Custom Container (Inline)
+You can also wrap an inline widget in your own modal or custom container:
 
 ```tsx
 <Modal isOpen={showSurvey}>
-  <OpineeoWidget token="your-token" surveyId="survey-id" />
+  <OpineeoWidget 
+    token="your-token" 
+    surveyId="survey-id" 
+    position="inline"
+  />
 </Modal>
 ```
 
