@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { OpineeoWidgetProps } from '../types';
 // Import the widget script as raw text - this will be bundled with the package
-import WIDGET_SCRIPT from './opineeo-0.0.1.min.js?raw';
+import WIDGET_SCRIPT from './opineeo.min.js?raw';
 // Load the widget script once globally
 let scriptLoaded = false;
 let loadPromise: Promise<void> | null = null;
@@ -51,6 +51,8 @@ const OpineeoWidget: React.FC<OpineeoWidgetProps> = ({
     userId,
     extraInfo,
     autoClose,
+    position = 'inline',
+    feedbackLabel = 'Give Feedback',
     onOpen,
     onClose,
     onSubmit,
@@ -82,6 +84,8 @@ const OpineeoWidget: React.FC<OpineeoWidgetProps> = ({
                 extraInfo: extraInfo,
                 autoClose: autoClose,
                 customCSS: customCSS,
+                position: position,
+                feedbackLabel: feedbackLabel,
                 onComplete: (data: any) => {
                     if (isMounted) {
                         onSubmit?.(data);
@@ -113,7 +117,7 @@ const OpineeoWidget: React.FC<OpineeoWidgetProps> = ({
             }
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [token, surveyId, customCSS, hidden, userId, extraInfo, autoClose]);
+    }, [token, surveyId, customCSS, hidden, userId, extraInfo, autoClose, position, feedbackLabel]);
 
     if (hidden) return null;
 

@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { OpineeoWidget } from '../src';
+import type { WidgetPosition } from '../src/types';
 
 const App: React.FC = () => {
     const [primaryColor, setPrimaryColor] = useState('#3B82F6');
     const [showWidget, setShowWidget] = useState(false);
-    const [apiKey, setApiKey] = useState('demo-api-key');
-    const [surveyId, setSurveyId] = useState('demo-survey-id');
+    const [apiKey, setApiKey] = useState('');
+    const [surveyId, setSurveyId] = useState('');
     const [logs, setLogs] = useState<string[]>([]);
-    const [customCSS, setCustomCSS] = useState(`.sv { --primary: ${primaryColor}; --primary-foreground: #ffffff; }`);
+    const [customCSS, setCustomCSS] = useState(`.sv { --primary: ${primaryColor}; }`);
+    const [position, setPosition] = useState<WidgetPosition>('inline');
+    const [feedbackLabel, setFeedbackLabel] = useState('Give Feedback');
 
     const addLog = (message: string) => {
         const timestamp = new Date().toLocaleTimeString();
@@ -79,7 +82,7 @@ const App: React.FC = () => {
                                         value={primaryColor}
                                         onChange={(e) => {
                                             setPrimaryColor(e.target.value);
-                                            setCustomCSS(`.sv { --primary: ${e.target.value}; --primary-foreground: #ffffff; }`);
+                                            setCustomCSS(`.sv { --primary: ${e.target.value}; }`);
                                         }}
                                         className="w-16 h-10 rounded border border-input cursor-pointer bg-background"
                                     />
@@ -88,7 +91,7 @@ const App: React.FC = () => {
                                         value={primaryColor}
                                         onChange={(e) => {
                                             setPrimaryColor(e.target.value);
-                                            setCustomCSS(`.sv { --primary: ${e.target.value}; --primary-foreground: #ffffff; }`);
+                                            setCustomCSS(`.sv { --primary: ${e.target.value}; }`);
                                         }}
                                         className="flex-1 px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent font-mono bg-background text-foreground"
                                         placeholder="#3B82F6"
@@ -124,6 +127,45 @@ const App: React.FC = () => {
                                 />
                             </div>
 
+                            {/* Widget Position */}
+                            <div>
+                                <label className="block text-sm font-medium text-foreground mb-2">
+                                    Widget Position
+                                </label>
+                                <select
+                                    value={position}
+                                    onChange={(e) => setPosition(e.target.value as WidgetPosition)}
+                                    className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground"
+                                >
+                                    <option value="inline">Inline (Embedded)</option>
+                                    <option value="bottom-right">Bottom Right Corner</option>
+                                    <option value="bottom-left">Bottom Left Corner</option>
+                                    <option value="top-right">Top Right Corner</option>
+                                    <option value="top-left">Top Left Corner</option>
+                                </select>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    {position === 'inline'
+                                        ? 'Widget will be embedded in the page'
+                                        : 'Widget will appear as a fixed button in the selected corner'}
+                                </p>
+                            </div>
+
+                            {/* Feedback Label */}
+                            {position !== 'inline' && (
+                                <div>
+                                    <label className="block text-sm font-medium text-foreground mb-2">
+                                        Feedback Button Label
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={feedbackLabel}
+                                        onChange={(e) => setFeedbackLabel(e.target.value)}
+                                        className="w-full px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-background text-foreground"
+                                        placeholder="Give Feedback"
+                                    />
+                                </div>
+                            )}
+
                             {/* Widget Controls */}
                             <div className="space-y-3 pt-4 border-t border-border">
                                 <button
@@ -157,6 +199,7 @@ const App: React.FC = () => {
 <OpineeoWidget
   token="${apiKey}"
   surveyId="${surveyId}"
+  position="${position}"${position !== 'inline' ? `\n  feedbackLabel="${feedbackLabel}"` : ''}
   customCSS="${customCSS}"
   onOpen={() => console.log('opened')}
   onClose={() => console.log('closed')}
@@ -179,14 +222,16 @@ const App: React.FC = () => {
                                 Clear
                             </button>
                         </div>
-                        {/* Widget - Fixed placement */}
-                        {showWidget && (
-                            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+                        {/* Widget - Conditional placement based on position */}
+                        {showWidget && position === 'inline' && (
+                            <div className="mb-4">
                                 <div className="bg-card rounded-xl shadow-lg border border-border p-2">
                                     <OpineeoWidget
                                         token={apiKey}
                                         surveyId={surveyId}
                                         customCSS={customCSS}
+                                        position={position}
+                                        feedbackLabel={feedbackLabel}
                                         onOpen={handleOpen}
                                         onClose={handleClose}
                                         onSubmit={handleSubmit}
@@ -363,6 +408,19 @@ const App: React.FC = () => {
                 </div>
             </main>
 
+            {/* Widget - Positioned (bottom-right, top-left, etc.) */}
+            {showWidget && position !== 'inline' && (
+                <OpineeoWidget
+                    token={apiKey}
+                    surveyId={surveyId}
+                    customCSS={customCSS}
+                    position={position}
+                    feedbackLabel={feedbackLabel}
+                    onOpen={handleOpen}
+                    onClose={handleClose}
+                    onSubmit={handleSubmit}
+                />
+            )}
         </div>
     );
 };

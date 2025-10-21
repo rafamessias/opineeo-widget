@@ -1,3 +1,5 @@
+export type WidgetPosition = 'inline' | 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
+
 export interface OpineeoWidgetProps {
     /**
      * Your Opineeo API key/token from https://app.opineeo.com
@@ -40,6 +42,23 @@ export interface OpineeoWidgetProps {
      * @default 0 (no auto-close)
      */
     autoClose?: number;
+
+    /**
+     * Position of the widget on the screen
+     * - inline: Embedded in the page (default)
+     * - top-right: Fixed position in top-right corner
+     * - top-left: Fixed position in top-left corner
+     * - bottom-right: Fixed position in bottom-right corner
+     * - bottom-left: Fixed position in bottom-left corner
+     * @default 'inline'
+     */
+    position?: WidgetPosition;
+
+    /**
+     * Label for the feedback button (only used when position is not 'inline')
+     * @default 'Give Feedback'
+     */
+    feedbackLabel?: string;
 
     /**
      * Callback when widget is opened
